@@ -1,0 +1,9 @@
+How the cybersecurity ecosystem actually works in the industry.
+Before learning offensive techniques, we covered the foundations that security professionals rely on:
+• Network fundamentals (IPv4, IPv6, subnetting, OSI model)
+• Security monitoring concepts such as EDR and SIEM
+• Infrastructure basics including data centers and firewall entry points
+• Operating system environments including Linux architecture and macOS
+• Virtualization and containerization concepts using tools like Docker
+• Network emulation and lab environments using GNS3 and EVE-NG
+We also discussed how internet standards are shaped by organizations like the IETF, IEEE, and ISO.
