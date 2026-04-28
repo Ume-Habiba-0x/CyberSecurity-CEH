@@ -1,0 +1,56 @@
+Week 2 Lab Task 
+Information Gathering (OSINT) 
+Recon Report – Tesla 
+1. Domain Ownership (WHOIS) 
+● Registrar: MarkMonitor 
+● Organization: DNStination Inc. (privacy protected) 
+● Created: 1992 
+● Status: Transfer & update protected 
+�
+�
+Indicates strong domain security. 
+
+
+
+
+
+
+
+2. IP Addresses 
+● 23.7.244.207 
+● 23.40.100.207 
+● 2.18.48.207 – 2.18.55.207 
+�
+�
+Multiple IPs show CDN usage (Akamai Technologies). Not real server. 
+3. Emails / Subdomains 
+● Mail server: tesla-com.mail.protection.outlook.com
+
+
+
+
+3. Emails / Subdomains 
+● Mail server: tesla-com.mail.protection.outlook.com 
+�
+�
+Uses Microsoft email service 
+● No subdomains found in this step 
+
+
+
+
+
+
+4. Shodan (Services) 
+● No direct backend services visible 
+● Only CDN-related HTTP/HTTPS expected 
+5. Suspicious Indicators 
+● No major misconfigurations found 
+● CDN hides real infrastructure 
+● Large attack surface likely in subdomains
+
+
+
+Conclusion 
+Main domain is well protected. 
+Further recon should focus on subdomains and hidden services
