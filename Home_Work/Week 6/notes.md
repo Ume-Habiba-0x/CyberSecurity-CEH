@@ -24,9 +24,7 @@ The system was modeled using **Microsoft Threat Modeling Tool 2016** to identify
 
 <br>
 
-<img src="/week5/Screenshot/week6.png" width="800" alt="Threat Model Diagram">
-
----
+<img src="../Week 5/Screenshot/week6.png" width="800" alt="Threat Model Diagram">
 
 ## 2. Threat Report (Critical Findings)
 
