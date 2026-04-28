@@ -93,4 +93,11 @@ Remove unnecessary SUID binaries
 ✔ 21 privilege escalation vectors reviewed
 ✔ Real-world Linux hardening lessons learned
 
+
+## 📸 Screenshot
+
+<img width="1898" height="886" alt="image" src="https://github.com/user-attachments/assets/45cefc97-eb23-448d-b3da-4b888b97591d" />
+<img width="1368" height="801" alt="image" src="https://github.com/user-attachments/assets/a6415e3e-dbc1-4d29-a927-9f52ba7803b2" />
+
+
 For educational and authorized lab environments only.
